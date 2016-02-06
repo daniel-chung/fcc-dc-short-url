@@ -1,0 +1,25 @@
+
+body {
+  font-size: 14px;
+  font-family: sans-serif;
+  padding: 4em 0;
+}
+div.content {
+  border: 1px solid red;
+  margin: auto;
+  width: 70%;
+}
+
+a {
+  text-decoration: none;
+}
+
+h1 {
+  font-size: 3em;
+  margin-bottom: 0.1em;
+}
+
+h3 {
+  font-size: 2em;
+  margin-bottom: 0.1em;
+}
