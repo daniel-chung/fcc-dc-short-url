@@ -11,47 +11,35 @@ function UrlHandler () {
   // Add method ----------------------------------------------------------------
   this.add = function (req, res) {
 
-    //----------------------------------------------------------------------//
-    // Settings
+    // Settings ------------------------------------------------------------//
     var host = req.headers.host;
     var inputUrlFull = req.params['urlFull'] + req.params['0'];
-    console.log(inputUrlFull);
 
 
-    //----------------------------------------------------------------------//
-    // Main
+    // Input error checking ------------------------------------------------//
+    // Reject if the inputUrl is does not match http uri Format
+    var urlCheck = /^(?:https?\:\\\\)?(?:.*\.)?.*\..*$/.exec(inputUrlFull)
+    if (urlCheck === null) {
+      res.status(500).send({ error: 'You entered an unacceptable url!' });
+    }
+    else {
+
+    // Main ----------------------------------------------------------------//
     Urls.findOne (
       { urlFull: inputUrlFull },
       function (err, url) {
-        console.log('mongo url', url);
-
-        if (err) throw err;
-        else if (url) {
-
-          // Send response
-          //res.send("number of links: " + count);
-          res.json(returnJSON(url.urlFull, url.urlId));
-
-          /*
-          Urls.count({}, function(err, count) {
-            if (err) throw err;
-
-          // -----------------------------------
-            console.log("main url json", returnJSON(url.urlFull, url.urlId));
-          // -----------------------------------
-
-          }); */
-        }
-        else addUrl();
+        if (err)
+          throw err;
+        else if (url)
+          res.json(returnJSON(url.urlFull, url.urlId)); // Send response
+        else
+          addUrl();
       }
     );
 
 
-    //----------------------------------------------------------------------//
-    // Method: adding url
+    // Method: adding url --------------------------------------------------//
     function addUrl() {
-      console.log('add url');
-
       Urls.count({}, function(err, count) {
         if (err) throw err;
         var newUrl = new Urls();
@@ -60,23 +48,13 @@ function UrlHandler () {
         newUrl.save(function(err) {
           if (err)
             throw err;
-
-        // -----------------------------------
-          console.log("add url json", returnJSON(inputUrlFull, count));
-        // -----------------------------------
-
-          // Send response
-          //res.send("saved: " + inputUrlFull);
-          res.json(returnJSON(inputUrlFull, count));
-
+          res.json(returnJSON(inputUrlFull, count)); // Send response
         });
       });
-
     }
 
 
-    //--------------------------------------------------------------------------
-    // Method: return JSON
+    // Method: return JSON -------------------------------------------------//
     /* Example:
       { "original_url": "http://freecodecamp.com/news",
         "short_url": "https://shurli.herokuapp.com/4" }
@@ -84,29 +62,30 @@ function UrlHandler () {
     function returnJSON(url_full, url_id) {
       var newObj = {};
       newObj.original_url = url_full;
-      newObj.short_url = host + '/' + url_id; // need to add root
+      newObj.short_url = host + '/' + url_id;
       return newObj;
     }
+  }
 
 
-  };  // End add method ----------------------------------------------------- //
+  };  // End add method --------------------------------------------------------
 
 
   // Redirect method -----------------------------------------------------------
   this.redirect = function (req, res) {
 
-    //----------------------------------------------------------------------//
-    // Settings
+    // Settings ------------------------------------------------------------//
     var inputUrlId = req.params['id'];
 
-
-    //----------------------------------------------------------------------//
-    // Main
+    // Main ----------------------------------------------------------------//
     Urls.findOne (
       { urlId: inputUrlId },
       function (err, urlId) {
         if (err) throw err;
         else if (urlId) {
+          var httpCheck = /^(?:https?\:\\\\)/.exec(urlId.urlFull);
+          if (httpCheck === null)
+            res.redirect('http://'+urlId.urlFull);
           res.redirect(urlId.urlFull);
         }
         else res.send("The shortened URL not found");
@@ -114,7 +93,7 @@ function UrlHandler () {
     );
 
 
-  };  // End redirect method ------------------------------------------------ //
+  };  // End redirect method ---------------------------------------------------
 
 };
 
