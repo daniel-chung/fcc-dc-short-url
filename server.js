@@ -17,7 +17,7 @@ app.use(morgan('dev')); // log every request to the console
 
 
 // Setp mongoose ---------------------------------------------------------------
-mongoose.connect(process.env.MONGOLAB_URI || process.env.MONGO_URI);
+mongoose.connect(process.env.MONGOLAB_URI + "/url" || process.env.MONGO_URI);
 
 
 // Load routes -----------------------------------------------------------------
